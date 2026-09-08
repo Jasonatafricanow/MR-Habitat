@@ -50,8 +50,9 @@ complete world platform:
 
 The full evidence is in [Verification](VERIFICATION.md). Representative
 captures are [desktop](screenshots/desktop.png),
-[evening](screenshots/evening.png), [mobile](screenshots/mobile.png), and the
-[Xiyue home](screenshots/xiyue-home-v1.png) surface.
+[evening](screenshots/evening.png), and [mobile](screenshots/mobile.png).
+The narrative describes the committed `main` baseline; later uncommitted
+asset/package experiments are deliberately not part of this public claim.
 
 ## What Failed or Was Reduced
 
