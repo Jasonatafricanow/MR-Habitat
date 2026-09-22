@@ -1,71 +1,165 @@
 # MR Habitat
 
-An extensible interactive visualization layer for Mind Runtime — turning agent state, cognition and activity into a persistent spatial presence.
-MR Habitat 是 OW 的空间化交互实验：把原本以状态面板、日志和文字展示的 Agent 运行状态，投影成一个可以被观察和轻度交互的持续空间。它不负责思考，也不负责聊天，只负责让 Agent“被看见”。
+**A spatial presence experiment for Mind Runtime.**
 
-MR Habitat is an experimental interactive visualization layer for Mind Runtime.
+MR Habitat explores a product question that appears only after runtime state becomes inspectable:
 
-It extends the original Observation Window concept from a diagnostic interface into a lightweight spatial environment where an agent can be observed through presence, movement, activities, speech bubbles, objects, and other visual projections.
+> If a long-lived agent has persistent state and activity, can that state be perceived as presence rather than only as dashboards, logs, and text?
 
-Habitat is not intended to become another cognition system, memory system, or primary chat interface.
+Habitat projects authored or runtime-derived state into a lightweight 3D environment. It does not own cognition, memory, identity, or the primary conversation.
 
-Mind Runtime remains the source of cognitive state and authority.
-Existing interfaces such as Telegram or other agent clients remain the primary interaction surfaces.
+## Portfolio role
 
-Habitat focuses on one question:
+```text
+Mind Runtime
+ runtime authority
+      |
+      v
+Observation / projection data
+      |
+      v
+MR Habitat
+ spatial presence
+```
 
-> What should a long-running agent feel like when its internal state is no longer represented only by text and dashboards, but by a persistent, observable environment?
+Habitat extends the read-only idea behind Observation Window. It is a projection layer, not a second runtime.
 
-The initial implementation is intentionally small.
+## The problem
 
-The environment is a projection layer, not an authority layer. Deleting or replacing a Habitat should never delete or redefine the cognition it represents.
+Traditional observability answers engineering questions:
 
-## Design Direction
+- what state exists;
+- which binding is active;
+- what changed;
+- what caused a transition.
 
-MR Habitat should remain lightweight before feature-rich, world-agnostic, character-agnostic, read-oriented before write-oriented, projection-driven rather than cognition-owning, compatible with externally authored assets, and loosely coupled to Mind Runtime through a narrow adapter boundary.
+That is useful for debugging, but it does not answer a product question:
 
-The first milestone is not to build a virtual world. It is to determine whether spatial presence is a useful extension of the MR Observation Window.
+> What does a persistent agent feel like when its continuity is visible in an ambient environment?
 
-一个让长期 Agent “住进去”的空间观察窗口。独立、本地、mock-only 的第一版视觉原型。
+The temptation is to answer by building a virtual world platform. Habitat deliberately avoids that scope.
 
-## 打开小屋
+## How the design evolved
 
-需要 Node.js 22.12+（本次使用 24.15.0）。
+### 1. Observation Window established the read-only boundary
 
-```powershell
+Mind Runtime already had a surface for state, telemetry, and causal inspection. That made "visibility" possible without giving the UI write authority.
+
+### 2. The next question was presence, not more diagnostics
+
+The experiment moved from panels toward spatial cues: movement, location, activity, objects, speech bubbles, day/night changes, and ambient routines.
+
+### 3. Product scope was intentionally reduced
+
+The first milestone is one lightweight environment with one stylized character and authored/mock events.
+
+It does **not** attempt to solve:
+
+- world creation;
+- generic avatar systems;
+- multiplayer;
+- a new chat client;
+- memory editing;
+- cognition simulation.
+
+The purpose is to test whether spatial presence adds useful perception before investing in platform complexity.
+
+## Key design decisions
+
+### Projection never owns cognition
+
+Deleting or replacing a Habitat must not delete or redefine the state it visualizes.
+
+### Read-oriented before write-oriented
+
+The first product question is whether observation has value. Write actions are intentionally constrained until the projection model is proven useful.
+
+### World and character are replaceable assets
+
+The runtime should consume validated world / character packages rather than embedding cognition logic into one scene.
+
+### Ambient behavior is not evidence
+
+Local animation and routine make the environment legible; they must not feed back into MR as if they were cognitive events.
+
+### Pause semantics are explicit
+
+Pausing visuals freezes local activity timing, while externally authored event TTL continues according to real time.
+
+## Architecture
+
+```text
+Authored / future MR projection input
+               |
+               v
+        Projection adapter
+               |
+               v
+      Habitat local state
+ scene / character / camera / UI
+               |
+               v
+ Three.js / React Three Fiber
+               |
+               v
+        Observable presence
+```
+
+No cognition write path is required for the current prototype.
+
+## Current prototype
+
+The first version provides:
+
+- one warm 3D room;
+- a stylized character with several locations / activities;
+- orbit, zoom, reset, pause, and day/night controls;
+- read-only object interactions;
+- authored external-event demonstrations;
+- transient speech bubbles;
+- low-intensity ambient routines;
+- alternate visual presets;
+- explicit hidden-page / pause timing behavior.
+
+## Verification
+
+```bash
 npm ci
+npm test
+npm run build
 npm run dev
 ```
 
-打开 http://127.0.0.1:5173 。仅监听本机。
+Relevant project records:
 
-```powershell
-npm test
-npm run build
-npm run preview
-```
+- [design and technology choices](docs/DESIGN.md)
+- [implementation plan](docs/PLAN.md)
+- [asset consumption boundary](docs/ASSETS.md)
+- [verification record](docs/VERIFICATION.md)
+- [product experiment record](docs/product-experiment.md)
 
-## 第一版可以做什么
+## Boundaries and non-claims
 
-- 在暖木色的 3D 小屋里观察 Mori：走动、窗边停留、桌前工作、沙发阅读与休息。
-- 拖动环绕、滚轮缩放、重置镜头；切换午后与夜晚、暂停视觉活动。
-- 点击书架、桌面、日记查看只读示例信息；Escape 关闭。
-- 右下角 `···` 打开外部事件演示：工作 / 新想法 / 阅读 / 休息。状态持续 35 秒，speech bubble 8.5 秒后消失。首次进入 12 秒后自动演示一次工作事件，手动操作优先。
-- 左上角“小屋”按钮切换两套配色与演示角色外观、显示标记、减少循环动作。
-- 无事件时以 28 秒为一段进行低强度的视觉日常。页面隐藏后暂停视觉活动，外部事件仍按真实时间过期。
+Habitat is currently:
 
-暂停只冻结角色与本地日常时钟。外部事件 TTL 继续走，恢复后消费仍有效的最新状态。暂停不冻结相机操作。
+- a local prototype;
+- one room;
+- one stylized character;
+- mock/authored-event driven;
+- not a real production MR client.
 
-## 产品与技术边界
+Generic GLB ingestion, automatic rig retargeting, a world editor, multiplayer, real mobile performance validation, and long-running production integration are outside the current delivered scope.
 
-React 19 + TypeScript + Vite；Three.js / React Three Fiber / Drei；three-pathfinding；Three AnimationMixer。没有 fork 游戏项目，没有自制 renderer 或 pathfinding engine。
+## Stack
 
-Habitat 自己维护角色的空间与动画状态、镜头、临时 UI。没有聊天框、MR 凭据、生产连接、记忆存储或 cognition 写入接口。Ambient 是视觉节奏，不是认知证据。书架等信息是固定的示例快照，不是实际 MR 内容。
+React 19 · TypeScript · Vite · Three.js · React Three Fiber · Drei · three-pathfinding
 
-- [短设计与选型](docs/DESIGN.md)
-- [实现计划](docs/PLAN.md)
-- [世界 / 角色消费接口及限制](docs/ASSETS.md)
-- [验证记录](docs/VERIFICATION.md)
-- [产品实验记录](docs/product-experiment.md)
+## Repository history
 
-当前只交付一套房型；两套配色不代表两种房屋。资产替换接口已拆开，但通用 GLB 文件导入、自动骨骼重定向、世界编辑器、多人系统都未实现。当前 character 是原创的低多边形木偶原型，动作仍是风格化表现。真实 MR 集成、真实手机性能与长期运行稳定性需要后续验证。
+Habitat was created as a bounded experiment after the Observation Window work. The repository records the prototype and its portfolio framing rather than claiming a mature virtual-world platform.
+
+## Engineering philosophy
+
+Build the smallest experiment that can invalidate the product idea.
+
+If spatial presence is not useful, the architecture should make Habitat disposable without threatening the cognition system underneath it.
