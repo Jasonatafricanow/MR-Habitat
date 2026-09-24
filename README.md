@@ -45,6 +45,8 @@ npm run build
 npm run preview
 ```
 
+GitHub Actions 在 push / pull request 上执行 `npm ci`、`npm test` 和 `npm run build`，作为公开的持续验证入口。
+
 ## 第一版可以做什么
 
 - 在暖木色的 3D 小屋里观察 Mori：走动、窗边停留、桌前工作、沙发阅读与休息。
