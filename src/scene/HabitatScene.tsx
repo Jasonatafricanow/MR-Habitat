@@ -10,30 +10,63 @@ import type { WorldPackage, CharacterPackage } from "../assets/packages";
 import type { ObjectId } from "../worlds/studio";
 import type { Activity } from "../runtime/semantic";
 import { createNavigation } from "../runtime/navigation";
+import { props as homeFurniture, homeScale } from "../worlds/xiyue";
 
-function Camera({ reset, zoom }: { reset: number; zoom: number }) {
+function Camera({
+  reset,
+  zoom,
+  focus,
+  large,
+  focusTarget,
+}: {
+  reset: number;
+  zoom: number;
+  focus: boolean;
+  large: boolean;
+  focusTarget?: [number, number, number];
+}) {
   const { camera, size, invalidate } = useThree();
   const controls = useRef<OrbitControlsImpl>(null!);
   useEffect(() => {
-    camera.position.set(10, 9, 12);
-    controls.current?.target.set(0, 0.9, 0);
+    camera.position.set(
+      ...((focus
+        ? focusTarget
+          ? [focusTarget[0] + 4, 6, focusTarget[2] + 5]
+          : [-6, 6, 3]
+        : large
+          ? [-7, 22, 17]
+          : [10, 9, 12]) as [number, number, number]),
+    );
+    controls.current?.target.set(
+      ...((focus
+        ? (focusTarget ?? [-2.3, 0.8, -1.6])
+        : large
+          ? [0, 0.6, 0]
+          : [0, 0.9, 0]) as [number, number, number]),
+    );
     controls.current?.update();
-  }, [reset, camera]);
+  }, [reset, camera, focus, large, focusTarget]);
   useEffect(() => {
     if ("zoom" in camera) {
-      camera.zoom = Math.min(size.width / 14.2, size.height / 11) * zoom;
+      camera.zoom =
+        Math.min(
+          size.width / (large ? 15 : 14.2),
+          size.height / (large ? 11.6 : 11),
+        ) *
+        zoom *
+        (focus ? 2 : 1);
       camera.updateProjectionMatrix();
       invalidate();
     }
-  }, [camera, size, zoom, reset, invalidate]);
+  }, [camera, size, zoom, reset, invalidate, focus, large]);
   return (
     <OrbitControls
       ref={controls}
       makeDefault
       target={[0, 0.9, 0]}
-      minPolarAngle={0.45}
+      minPolarAngle={large ? 0.02 : 0.45}
       maxPolarAngle={1.25}
-      minAzimuthAngle={-0.22}
+      minAzimuthAngle={large ? -1.35 : -0.22}
       maxAzimuthAngle={1.5}
       enablePan={false}
       enableDamping
@@ -46,6 +79,12 @@ function Camera({ reset, zoom }: { reset: number; zoom: number }) {
   );
 }
 export interface SceneProps {
+  importedLayer?: import("react").ReactNode;
+  focusTarget?: [number, number, number];
+  focus?: boolean;
+  layout?: import("../worlds/xiyue").Layout;
+  onWardrobe?: () => void;
+  targetAnchor?: import("../worlds/studio").Anchor;
   night: boolean;
   autumn: boolean;
   paused: boolean;
@@ -64,12 +103,15 @@ export interface SceneProps {
 function HabitatScene(props: SceneProps) {
   const worldPackage = props.worldPackage ?? paperwood;
   const { definition: world, Surface } = worldPackage;
+  const isHome = world.id === "xiyue-home-v1";
+  const floorLamp = homeFurniture.find((p) => p.id === "living-lamp")!;
   const navigation = useMemo(
     () =>
       createNavigation({
         ...world.bounds,
         obstacles: world.obstacles,
         clearance: 0.2,
+        cellSize: world.navigationCellSize,
       }),
     [world],
   );
@@ -88,14 +130,14 @@ function HabitatScene(props: SceneProps) {
     >
       <color attach="background" args={[props.night ? "#c6cec8" : "#eeece5"]} />
       <ambientLight
-        intensity={props.night ? 0.75 : 1.1}
+        intensity={props.night ? 0.75 : isHome ? 0.7 : 1.1}
         color={props.night ? "#abbcd2" : "#fff5df"}
       />
       <hemisphereLight
-        args={["#fff4d6", "#9b9e85", props.night ? 0.8 : 1.15]}
+        args={["#fff4d6", "#9b9e85", props.night ? 0.8 : isHome ? 0.85 : 1.15]}
       />
       <directionalLight
-        position={[-3, 8, 4]}
+        position={isHome ? [-4, 8, -5] : [-3, 8, 4]}
         intensity={props.night ? 1 : 2.5}
         color={props.night ? "#f4d8a0" : "#fff0d0"}
         castShadow
@@ -108,27 +150,40 @@ function HabitatScene(props: SceneProps) {
         shadow-normalBias={0.025}
       />
       <pointLight
-        position={[-3.5, 1.9, 2.35]}
+        position={
+          isHome
+            ? [floorLamp.x * homeScale, 1.65, floorLamp.z * homeScale]
+            : [-3.5, 1.9, 2.35]
+        }
         intensity={props.night ? 13 : 1}
         color="#ffd18a"
         distance={7}
         decay={2}
       />
       <pointLight
-        position={[3.13, 1.75, -2.7]}
+        position={
+          isHome
+            ? [-4.55 * homeScale, 1.03, -2.7 * homeScale]
+            : [3.13, 1.75, -2.7]
+        }
         intensity={props.night ? 5 : 0.4}
         color="#ffd58c"
         distance={4}
       />
       <Suspense fallback={null}>
         <Surface
+          fixedShell={worldPackage.fixedShell}
+          layout={props.layout}
+          onWardrobe={props.onWardrobe}
           night={props.night}
           autumn={props.autumn}
           onSelect={props.onSelect}
           showLabels={props.showLabels}
         />
+        {props.importedLayer}
         <Character
           key={world.id}
+          targetAnchor={props.targetAnchor}
           asset={props.asset}
           characterPackage={props.characterPackage ?? woodenCompanion}
           world={world}
@@ -150,7 +205,13 @@ function HabitatScene(props: SceneProps) {
           color="#605344"
         />
       </Suspense>
-      <Camera reset={props.reset} zoom={props.zoom} />
+      <Camera
+        reset={props.reset}
+        zoom={props.zoom}
+        focus={!!props.focus}
+        focusTarget={props.focusTarget}
+        large={world.id !== "paperwood"}
+      />
     </Canvas>
   );
 }

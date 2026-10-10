@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="820" viewBox="0 0 920 820"><rect width="920" height="820" fill="#f3efe6"/><g font-family="Microsoft YaHei, sans-serif" fill="#363a32"><text x="55" y="45" font-size="25">Xiyue Home · 结构校正平面</text><text x="55" y="74" font-size="13">由当前场景坐标生成 · 北↑ · 墙线与碰撞共用数据 · 原图尺寸为近似值</text>
+<rect x="115" y="146" width="221" height="260" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="115" y="406" width="143" height="182" fill="#cbd1c4" stroke="#bbaa8f"/>
+<rect x="258" y="406" width="78" height="104" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="336" y="198" width="273" height="260" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="336" y="458" width="104" height="52" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="323" y="510" width="117" height="143" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="440" y="458" width="169" height="195" fill="#cbd1c4" stroke="#bbaa8f"/>
+<rect x="609" y="302" width="182" height="208" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="609" y="146.00000000000003" width="130" height="156" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="336" y="94" width="208" height="104" fill="#e1ceb0" stroke="#bbaa8f"/>
+<rect x="552.45" y="480.75" width="45.5" height="156" fill="#a7ad88" stroke="#69745d"/>
+<text x="575.2" y="561.675" text-anchor="middle" font-size="10">灶台</text>
+<rect x="488.75" y="602.95" width="71.5" height="45.5" fill="#e9ede8" stroke="#69745d"/>
+<text x="524.5" y="628.625" text-anchor="middle" font-size="10">洗槽</text>
+<rect x="122.79999999999995" y="493.75" width="52" height="78" fill="#e9ede8" stroke="#69745d"/>
+<text x="148.79999999999995" y="535.675" text-anchor="middle" font-size="10">淋浴</text>
+<rect x="186.49999999999997" y="419.65" width="58.5" height="31.2" fill="#e9ede8" stroke="#69745d"/>
+<text x="215.75" y="438.175" text-anchor="middle" font-size="10">洗手台</text>
+<rect x="126.375" y="415.75" width="35.75" height="39" fill="#e9ede8" stroke="#69745d"/>
+<text x="144.25" y="438.175" text-anchor="middle" font-size="10">马桶</text>
+<rect x="121.82500000000005" y="230.5" width="146.25" height="104" fill="#a7ad88" stroke="#69745d"/>
+<text x="194.95" y="285.425" text-anchor="middle" font-size="10">床 · 床头←</text>
+<rect x="291.15" y="167.125" width="39" height="94.25" fill="#a7ad88" stroke="#69745d"/>
+<text x="310.65" y="217.175" text-anchor="middle" font-size="10">衣柜</text>
+<rect x="732.175" y="354" width="42.25" height="104" fill="#a7ad88" stroke="#69745d"/>
+<text x="753.3" y="408.925" text-anchor="middle" font-size="10">书桌</text>
+<rect x="618.75" y="474.25" width="97.5" height="26" fill="#a7ad88" stroke="#69745d"/>
+<text x="667.5" y="490.17499999999995" text-anchor="middle" font-size="10">书架</text>
+<rect x="662.625" y="181.75" width="48.75" height="52" fill="#a7ad88" stroke="#69745d"/>
+<rect x="334.05" y="537.95" width="26" height="84.5" fill="#a7ad88" stroke="#69745d"/>
+<text x="347.05" y="583.125" text-anchor="middle" font-size="10">长凳</text>
+<rect x="336" y="624.4" width="22.1" height="22.1" fill="#a7ad88" stroke="#69745d"/>
+<rect x="485.5" y="116.75" width="32.5" height="32.5" fill="#a7ad88" stroke="#69745d"/>
+<rect x="362" y="107" width="39" height="52" fill="#a7ad88" stroke="#69745d"/>
+<rect x="583" y="201.25" width="19.5" height="110.5" fill="#a7ad88" stroke="#69745d"/>
+<text x="592.75" y="259.425" text-anchor="middle" font-size="10">书架</text>
+<rect x="461.45" y="602.3" width="41.6" height="42.9" fill="#a7ad88" stroke="#69745d"/>
+<text x="482.25" y="626.675" text-anchor="middle" font-size="10">冰箱</text>
+<rect x="624.6" y="174.6" width="27.3" height="27.3" fill="#a7ad88" stroke="#69745d"/>
+<rect x="129.62500000000006" y="189.87499999999997" width="29.25" height="29.25" fill="#a7ad88" stroke="#69745d"/>
+<rect x="694.8" y="420.3" width="29.900000000000002" height="29.900000000000002" fill="#a7ad88" stroke="#69745d"/>
+<rect x="358.75" y="160.95" width="24.7" height="24.7" fill="#a7ad88" stroke="#69745d"/>
+<rect x="347.05" y="224" width="19.5" height="19.5" fill="#a7ad88" stroke="#69745d"/>
+<rect x="373.7" y="221.4" width="41.6" height="41.6" fill="#a7ad88" stroke="#69745d"/>
+<rect x="506.3" y="167.45" width="19.5" height="19.5" fill="#a7ad88" stroke="#69745d"/>
+<rect x="209.9" y="546.4" width="24.7" height="24.7" fill="#a7ad88" stroke="#69745d"/>
+<g transform="translate(521.25 298.75) rotate(90)"><rect x="-74.75" y="-27.625" width="149.5" height="55.25" fill="#82906a" stroke="#526445"/></g>
+<g transform="translate(394.5 295.5) rotate(0)"><rect x="-27.625" y="-17.875" width="55.25" height="35.75" fill="#82906a" stroke="#526445"/></g>
+<rect x="110.44999999999999" y="146" width="9.100000000000001" height="260" fill="#393e36" stroke="none"/>
+<rect x="115" y="141.45000000000002" width="221" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="110.44999999999999" y="406" width="9.100000000000001" height="182" fill="#393e36" stroke="none"/>
+<rect x="115" y="583.45" width="143" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="331.45" y="146" width="9.100000000000001" height="182" fill="#393e36" stroke="none"/>
+<rect x="331.45" y="393" width="9.100000000000001" height="32.5" fill="#393e36" stroke="none"/>
+<rect x="115" y="401.45" width="221" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="253.45000000000002" y="406" width="9.100000000000001" height="39" fill="#393e36" stroke="none"/>
+<rect x="253.45000000000002" y="503.5" width="9.100000000000001" height="84.5" fill="#393e36" stroke="none"/>
+<rect x="318.45" y="510" width="9.100000000000001" height="143" fill="#393e36" stroke="none"/>
+<rect x="323" y="648.45" width="26" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="414" y="648.45" width="26" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="435.45" y="458" width="9.100000000000001" height="195" fill="#393e36" stroke="none"/>
+<rect x="440" y="648.45" width="169" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="538.8" y="453.45" width="70.2" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="604.45" y="510" width="9.100000000000001" height="143" fill="#393e36" stroke="none"/>
+<rect x="604.45" y="146" width="9.100000000000001" height="143" fill="#393e36" stroke="none"/>
+<rect x="604.45" y="406" width="9.100000000000001" height="104" fill="#393e36" stroke="none"/>
+<rect x="609" y="505.45" width="182" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="786.45" y="302" width="9.100000000000001" height="208" fill="#393e36" stroke="none"/>
+<rect x="734.4499999999999" y="146.00000000000003" width="9.100000000000001" height="156" fill="#393e36" stroke="none"/>
+<rect x="609" y="141.45000000000002" width="130" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="687" y="297.45" width="52" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="739" y="297.45" width="52" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="544" y="193.45000000000002" width="65" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="258" y="505.45" width="65" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="323" y="505.45" width="58.5" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="336" y="193.45000000000002" width="52" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="505" y="193.45000000000002" width="39" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<rect x="331.45" y="94" width="9.100000000000001" height="104" fill="#393e36" stroke="none"/>
+<rect x="539.45" y="94" width="9.100000000000001" height="104" fill="#393e36" stroke="none"/>
+<rect x="336" y="89.44999999999993" width="208" height="9.100000000000001" fill="#393e36" stroke="none"/>
+<path d="M 336 328 L 336 393" stroke="#b97944" stroke-width="3" stroke-dasharray="5 3"/>
+<path d="M 258 445 L 258 503.5" stroke="#b97944" stroke-width="3" stroke-dasharray="5 3"/>
+<path d="M 444.55 458 L 534.25 458" stroke="#b97944" stroke-width="3" stroke-dasharray="5 3"/>
+<path d="M 349 653 L 414 653" stroke="#b97944" stroke-width="3" stroke-dasharray="5 3"/>
+<text x="219" y="363.75" text-anchor="middle" font-size="15">卧室</text>
+<text x="215.75" y="510" text-anchor="middle" font-size="15">卫浴</text>
+<text x="388" y="556.8" text-anchor="middle" font-size="15">玄关</text>
+<text x="519.3" y="532.75" text-anchor="middle" font-size="15">厨房</text>
+<text x="687" y="441.75" text-anchor="middle" font-size="15">书房</text>
+<text x="674" y="272.75" text-anchor="middle" font-size="15">窗边</text>
+<text x="449.75" y="411.2" text-anchor="middle" font-size="15">客厅</text>
+<text x="440" y="168.75" text-anchor="middle" font-size="15">阳台</text>
+<text x="55" y="735" font-size="14">校正：入口与厨房前沿对齐｜床头靠西｜卫浴东侧门洞｜洁具沿墙归位</text><text x="55" y="763" font-size="13">橙色虚线：门洞 / 入户门位置。低墙仅是剖切显示，不能作为通道。</text></g></svg>

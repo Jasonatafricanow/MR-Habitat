@@ -2,6 +2,9 @@ export interface CharacterAsset {
   id: string;
   name: string;
   coat: string;
+  pants?: string;
+  hat?: string;
+  outfitStyle?: string;
   hair: string;
   skin: string;
 }

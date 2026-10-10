@@ -99,7 +99,17 @@ export function createNavigation(options: NavigationOptions): {
         )
       )
         continue;
-      cells.push(cell);
+      // Membership must use the same welded coordinates as the route vertices.
+      // Otherwise a valid route on a rounded cell edge cannot be retargeted.
+      // Clearance remains guarded by the unrounded obstacle rectangles above.
+      cells.push(
+        Object.fromEntries(
+          Object.entries(cell).map(([key, value]) => [
+            key,
+            Math.round(value * 100) / 100,
+          ]),
+        ) as unknown as Obstacle,
+      );
       const { minX: a, maxX: b, minZ: c, maxZ: d } = cell;
       vertices.push(a, 0, c, a, 0, d, b, 0, c, b, 0, c, a, 0, d, b, 0, d);
     }
@@ -110,6 +120,8 @@ export function createNavigation(options: NavigationOptions): {
   pathfinder.setZoneData("floor", Pathfinding.createZone(geometry));
   geometry.dispose();
 
+  // Match the weld margin at shared corners; obstacle and floor checks remain exact.
+  const cellTolerance = 0.011;
   function isWalkable(point: Point): boolean {
     if (!point.every(Number.isFinite) || Math.abs(point[1]) > epsilon)
       return false;
@@ -128,40 +140,68 @@ export function createNavigation(options: NavigationOptions): {
       return false;
     return cells.some(
       (cell) =>
-        x >= cell.minX - epsilon &&
-        x <= cell.maxX + epsilon &&
-        z >= cell.minZ - epsilon &&
-        z <= cell.maxZ + epsilon,
+        x >= cell.minX - cellTolerance &&
+        x <= cell.maxX + cellTolerance &&
+        z >= cell.minZ - cellTolerance &&
+        z <= cell.maxZ + cellTolerance,
     );
   }
 
   function findPath(start: Point, end: Point): Point[] | null {
     if (!isWalkable(start) || !isWalkable(end)) return null;
-    const from = new Vector3(...start);
+    if (
+      new Vector3(...start).distanceToSquared(new Vector3(...end)) <
+      epsilon * epsilon
+    )
+      return [[...end]];
+    // The library's strict polygon test excludes some exact boundary points.
+    // If the direct query fails, enter the interior of a containing cell along
+    // a checked segment. Never snap through walls or return an unchecked route.
+    const seeds: Point[] = [
+      start,
+      ...cells
+        .filter(
+          (cell) =>
+            start[0] >= cell.minX - cellTolerance &&
+            start[0] <= cell.maxX + cellTolerance &&
+            start[2] >= cell.minZ - cellTolerance &&
+            start[2] <= cell.maxZ + cellTolerance,
+        )
+        .map(
+          (cell) =>
+            [
+              (cell.minX + cell.maxX) / 2,
+              0,
+              (cell.minZ + cell.maxZ) / 2,
+            ] as Point,
+        ),
+    ];
     const to = new Vector3(...end);
-    const group = pathfinder.getGroup("floor", from);
-    if (group == null || pathfinder.getGroup("floor", to) !== group)
-      return null;
-    if (
-      !pathfinder.getClosestNode(from, "floor", group, true) ||
-      !pathfinder.getClosestNode(to, "floor", group, true)
-    )
-      return null;
-    if (from.distanceToSquared(to) < epsilon * epsilon) return [[...end]];
-    const route = pathfinder.findPath(from, to, "floor", group);
-    if (
-      !route?.length ||
-      route.at(-1)!.distanceToSquared(to) > epsilon * epsilon
-    )
-      return null;
-    const points = route.map((point) => [point.x, 0, point.z] as Point);
-    let previous = start;
-    for (const point of points) {
-      if (obstacles.some((rect) => crossesRectangle(previous, point, rect)))
-        return null;
-      previous = point;
+    for (const seed of seeds) {
+      const from = new Vector3(...seed);
+      const group = pathfinder.getGroup("floor", from);
+      if (group == null || pathfinder.getGroup("floor", to) !== group) continue;
+      const route = pathfinder.findPath(from, to, "floor", group);
+      if (
+        !route?.length ||
+        route.at(-1)!.distanceToSquared(to) > epsilon * epsilon
+      )
+        continue;
+      const points: Point[] = [
+        ...(seed === start ? [] : [seed]),
+        ...route.map((point) => [point.x, 0, point.z] as Point),
+      ];
+      let previous = start;
+      const safe = points.every((point) => {
+        const clear = !obstacles.some((rect) =>
+          crossesRectangle(previous, point, rect),
+        );
+        previous = point;
+        return clear;
+      });
+      if (safe) return points;
     }
-    return points;
+    return null;
   }
   return { findPath, isWalkable };
 }

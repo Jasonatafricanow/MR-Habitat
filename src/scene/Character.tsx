@@ -35,6 +35,22 @@ export function Toy({
         size={[0.095, 0.075, 0.024]}
         color={asset.coat}
       />
+      {asset.outfitStyle === "apron" && (
+        <Box
+          position={[0, -0.03, 0.205]}
+          size={[0.32, 0.46, 0.035]}
+          color="#e6d4ad"
+        />
+      )}
+      {asset.outfitStyle === "sleepwear" &&
+        [-0.05, 0.07, 0.19].map((y) => (
+          <Sphere
+            key={y}
+            position={[0, y, 0.23]}
+            scale={[0.023, 0.023, 0.016]}
+            color="#e4e5d9"
+          />
+        ))}
       <group name="Head" position={[0, 0.52, 0]}>
         <Sphere scale={[0.285, 0.31, 0.265]} color={asset.skin} />
         <Sphere
@@ -94,13 +110,13 @@ export function Toy({
           radius={0.31}
           top={0.25}
           height={0.15}
-          color="#859777"
+          color={asset.hat ?? "#859777"}
         />
         <Cylinder
           position={[0, 0.279, 0.025]}
           radius={0.37}
           height={0.045}
-          color="#93a480"
+          color={asset.hat ?? "#93a480"}
         />
         <Box
           position={[0.16, 0.355, 0.22]}
@@ -136,14 +152,14 @@ export function Toy({
           <Box
             position={[0, -0.16, 0]}
             size={[0.16, 0.32, 0.17]}
-            color="#515d50"
+            color={asset.pants ?? "#515d50"}
             radius={0.06}
           />
           <group name={i ? "ShinR" : "ShinL"} position={[0, -0.3, 0]}>
             <Box
               position={[0, -0.145, 0]}
               size={[0.145, 0.3, 0.155]}
-              color="#515d50"
+              color={asset.pants ?? "#515d50"}
               radius={0.05}
             />
             <Box
@@ -175,6 +191,7 @@ export function Toy({
 
 export function Character({
   asset,
+  targetAnchor,
   characterPackage,
   world,
   navigation,
@@ -184,6 +201,7 @@ export function Character({
   speech,
   onMotion,
 }: {
+  targetAnchor?: import("../worlds/studio").Anchor;
   asset: CharacterAsset;
   characterPackage: CharacterPackage;
   world: WorldDefinition;
@@ -208,12 +226,12 @@ export function Character({
     return () => a.dispose();
   }, [asset.id, characterPackage]);
   useEffect(() => {
-    const anchor = world.anchors[activity];
+    const anchor = targetAnchor ?? world.anchors[activity];
     controller.setTarget(
       anchor,
       navigation.findPath(controller.snapshot().position, anchor.position),
     );
-  }, [activity, navigation, world, controller]);
+  }, [activity, navigation, world, controller, targetAnchor]);
   useFrame((_, raw) => {
     const frame = controller.step(raw, paused);
     root.current.position.set(

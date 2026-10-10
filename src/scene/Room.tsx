@@ -1,3 +1,5 @@
+import { FixedShell } from "./FixedShell";
+import type { WorldSurfaceProps } from "../assets/packages";
 import { Html } from "@react-three/drei";
 import { BookOpen, NotebookPen, Laptop } from "lucide-react";
 import { Box, Cylinder, Plant, Sphere } from "./Primitives";
@@ -9,119 +11,126 @@ import {
   Bookshelf,
   FloorLamp,
 } from "./Furniture";
-import type { ObjectId } from "../worlds/studio";
 import { Floorboards } from "./Floorboards";
 
 export function Room({
+  fixedShell,
   night,
   autumn,
   onSelect,
   showLabels,
-}: {
-  night: boolean;
-  autumn: boolean;
-  onSelect: (id: ObjectId) => void;
-  showLabels: boolean;
-}) {
+}: WorldSurfaceProps) {
   const wall = autumn ? "#d7bfaa" : "#ded9c3";
   return (
     <group>
-      <Box
-        position={[0, -0.31, 0]}
-        size={[9.45, 0.57, 7.3]}
-        color="#a5825f"
-        radius={0.12}
-      />
-      <Box position={[0, -0.085, 0]} size={[9.25, 0.14, 7.1]} color="#bc976e" />
-      <Floorboards />
-      <Box position={[-4.55, 1.5, 0]} size={[0.18, 3, 7.15]} color={wall} />
-      <Box position={[0, 1.5, -3.5]} size={[9.2, 3, 0.18]} color={wall} />
-      <Box
-        position={[-4.43, 0.15, 0]}
-        size={[0.06, 0.26, 7.05]}
-        color="#eae2c9"
-      />
-      <Box
-        position={[0, 0.15, -3.37]}
-        size={[9.05, 0.26, 0.06]}
-        color="#eae2c9"
-      />
-      <Box
-        position={[-4.55, 3.01, 0]}
-        size={[0.24, 0.1, 7.2]}
-        color="#eee6d0"
-      />
-      <Box position={[0, 3.01, -3.5]} size={[9.3, 0.1, 0.24]} color="#eee6d0" />
-      {/* A shallow, framed landscape gives the window depth without remote textures. */}
-      <group position={[-2.35, 1.89, -3.36]}>
-        <Box size={[2.45, 1.85, 0.13]} color="#9f805e" />
+      <FixedShell source={fixedShell}>
         <Box
-          position={[0, 0, 0.08]}
-          size={[2.25, 1.65, 0.06]}
-          color={night ? "#465d70" : "#a9c6c1"}
+          position={[0, -0.31, 0]}
+          size={[9.45, 0.57, 7.3]}
+          color="#a5825f"
+          radius={0.12}
         />
-        <mesh position={[0.62, 0.42, 0.125]}>
-          <circleGeometry args={[0.16, 32]} />
-          <meshBasicMaterial color={night ? "#eddfb2" : "#f5e5b6"} />
-        </mesh>
-        {[-0.8, -0.35, 0.2, 0.7].map((x, i) => (
-          <mesh key={x} position={[x, -0.38, 0.14 + i * 0.004]}>
-            <circleGeometry args={[0.65 + i * 0.035, 24, 0, Math.PI]} />
-            <meshBasicMaterial
-              color={
-                night
-                  ? "#425b57"
-                  : ["#92aaa0", "#789989", "#688b78", "#8da48a"][i]
-              }
-            />
+        <Box
+          position={[0, -0.085, 0]}
+          size={[9.25, 0.14, 7.1]}
+          color="#bc976e"
+        />
+        <Floorboards />
+        <Box position={[-4.55, 1.5, 0]} size={[0.18, 3, 7.15]} color={wall} />
+        <Box position={[0, 1.5, -3.5]} size={[9.2, 3, 0.18]} color={wall} />
+        <Box
+          position={[-4.43, 0.15, 0]}
+          size={[0.06, 0.26, 7.05]}
+          color="#eae2c9"
+        />
+        <Box
+          position={[0, 0.15, -3.37]}
+          size={[9.05, 0.26, 0.06]}
+          color="#eae2c9"
+        />
+        <Box
+          position={[-4.55, 3.01, 0]}
+          size={[0.24, 0.1, 7.2]}
+          color="#eee6d0"
+        />
+        <Box
+          position={[0, 3.01, -3.5]}
+          size={[9.3, 0.1, 0.24]}
+          color="#eee6d0"
+        />
+        {/* A shallow, framed landscape gives the window depth without remote textures. */}
+        <group position={[-2.35, 1.89, -3.36]}>
+          <Box size={[2.45, 1.85, 0.13]} color="#9f805e" />
+          <Box
+            position={[0, 0, 0.08]}
+            size={[2.25, 1.65, 0.06]}
+            color={night ? "#465d70" : "#a9c6c1"}
+          />
+          <mesh position={[0.62, 0.42, 0.125]}>
+            <circleGeometry args={[0.16, 32]} />
+            <meshBasicMaterial color={night ? "#eddfb2" : "#f5e5b6"} />
           </mesh>
-        ))}
-        <Box
-          position={[0, -0.64, 0.15]}
-          size={[2.24, 0.37, 0.015]}
-          color={night ? "#425b57" : "#8da48a"}
-        />
-        {[-1.16, 0, 1.16].map((x) => (
-          <Box
-            key={x}
-            position={[x, 0, 0.22]}
-            size={[0.065, 1.79, 0.09]}
-            color="#eee5ca"
-          />
-        ))}
-        {[-0.87, 0.04, 0.87].map((y) => (
-          <Box
-            key={y}
-            position={[0, y, 0.22]}
-            size={[2.38, 0.065, 0.09]}
-            color="#eee5ca"
-          />
-        ))}
-        <Box
-          position={[0, -0.96, 0.25]}
-          size={[2.68, 0.13, 0.48]}
-          color="#e7ddc2"
-        />
-        <Cylinder
-          position={[0, 1.06, 0.22]}
-          radius={0.025}
-          height={2.97}
-          color="#9b805b"
-          rotation={[0, 0, Math.PI / 2]}
-        />
-        {[-1.28, 1.28].map((x) => (
-          <group key={x} position={[x, 0.02, 0.3]}>
-            {[0, 1, 2].map((i) => (
-              <Cylinder
-                key={i}
-                position={[(i - 1) * 0.12, 0, 0]}
-                radius={0.09}
-                height={1.9}
-                color="#f0e7cf"
+          {[-0.8, -0.35, 0.2, 0.7].map((x, i) => (
+            <mesh key={x} position={[x, -0.38, 0.14 + i * 0.004]}>
+              <circleGeometry args={[0.65 + i * 0.035, 24, 0, Math.PI]} />
+              <meshBasicMaterial
+                color={
+                  night
+                    ? "#425b57"
+                    : ["#92aaa0", "#789989", "#688b78", "#8da48a"][i]
+                }
               />
-            ))}
-          </group>
-        ))}
+            </mesh>
+          ))}
+          <Box
+            position={[0, -0.64, 0.15]}
+            size={[2.24, 0.37, 0.015]}
+            color={night ? "#425b57" : "#8da48a"}
+          />
+          {[-1.16, 0, 1.16].map((x) => (
+            <Box
+              key={x}
+              position={[x, 0, 0.22]}
+              size={[0.065, 1.79, 0.09]}
+              color="#eee5ca"
+            />
+          ))}
+          {[-0.87, 0.04, 0.87].map((y) => (
+            <Box
+              key={y}
+              position={[0, y, 0.22]}
+              size={[2.38, 0.065, 0.09]}
+              color="#eee5ca"
+            />
+          ))}
+          <Box
+            position={[0, -0.96, 0.25]}
+            size={[2.68, 0.13, 0.48]}
+            color="#e7ddc2"
+          />
+          <Cylinder
+            position={[0, 1.06, 0.22]}
+            radius={0.025}
+            height={2.97}
+            color="#9b805b"
+            rotation={[0, 0, Math.PI / 2]}
+          />
+          {[-1.28, 1.28].map((x) => (
+            <group key={x} position={[x, 0.02, 0.3]}>
+              {[0, 1, 2].map((i) => (
+                <Cylinder
+                  key={i}
+                  position={[(i - 1) * 0.12, 0, 0]}
+                  radius={0.09}
+                  height={1.9}
+                  color="#f0e7cf"
+                />
+              ))}
+            </group>
+          ))}
+        </group>
+      </FixedShell>
+      <group position={[-2.35, 1.89, -3.36]}>
         <Plant position={[-0.73, -0.87, 0.26]} scale={0.36} />
       </group>
       <group position={[2.02, 2.16, -3.34]}>

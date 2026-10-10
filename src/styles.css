@@ -1017,3 +1017,259 @@ button:disabled {
     inset: 215px -5px 168px -5px;
   }
 }
+.home-actions {
+  position: absolute;
+  right: 32px;
+  top: 110px;
+  display: flex;
+  gap: 8px;
+  z-index: 25;
+}
+.home-actions button,
+.home-actions select,
+.home-panel button {
+  background: #f7f3e9;
+  border: 1px solid #d4c9b5;
+  border-radius: 8px;
+  padding: 9px;
+  color: #4b5143;
+  cursor: pointer;
+}
+.home-marker {
+  border: 1px solid #d2c8b4;
+  background: #f4eedde8;
+  padding: 5px 9px;
+  border-radius: 14px;
+  white-space: nowrap;
+  color: #505747;
+  cursor: pointer;
+  font-size: 11px;
+}
+.home-panel {
+  position: absolute;
+  right: 30px;
+  top: 160px;
+  width: 310px;
+  padding: 22px;
+  background: #f5f1e7f5;
+  border: 1px solid #d5ccb8;
+  border-radius: 18px;
+  z-index: 60;
+  box-shadow: 0 15px 55px #453b2522;
+  max-height: 65vh;
+  overflow: auto;
+}
+.home-panel h2 {
+  font-size: 22px;
+  margin: 18px 0;
+}
+.home-panel p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #6d715f;
+}
+.home-panel button {
+  margin: 4px;
+}
+.home-panel fieldset {
+  border: 1px solid #ddd3c1;
+  border-radius: 8px;
+  margin: 10px 0;
+  display: flex;
+  gap: 7px;
+}
+.home-panel label {
+  font-size: 12px;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.home-panel input {
+  width: 70px;
+  border: 1px solid #cfc6b4;
+  padding: 5px;
+}
+.outfit-list {
+  display: flex;
+  gap: 4px;
+}
+.outfit-list button {
+  display: grid;
+  justify-items: center;
+  font-size: 12px;
+  gap: 8px;
+}
+.outfit-list button[aria-pressed="true"] {
+  outline: 2px solid #6c7d58;
+}
+.outfit-swatch {
+  display: block;
+  width: 42px;
+  height: 65px;
+  border-radius: 18px 18px 8px 8px;
+}
+.wardrobe-panel > .eyebrow {
+  display: block;
+  margin-top: 18px;
+}
+@media (max-width: 650px) {
+  .home-actions {
+    right: 12px;
+    top: 100px;
+    max-width: 65%;
+    font-size: 11px;
+  }
+  .home-actions select {
+    max-width: 130px;
+  }
+  .home-panel {
+    right: 10px;
+    top: 155px;
+    width: min(310px, calc(100vw - 20px));
+    padding: 16px;
+    max-height: 58vh;
+  }
+  .home-marker {
+    font-size: 10px;
+    padding: 4px;
+  }
+}
+.asset-manager {
+  position: fixed;
+  inset: 5vh 5vw;
+  z-index: 100;
+  background: #f8f5ed;
+  border: 1px solid #cec4b2;
+  border-radius: 14px;
+  padding: 22px;
+  overflow: auto;
+  box-shadow: 0 0 0 10vw #3337;
+  color: #444b3d;
+}
+.asset-manager header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.asset-manager h2 {
+  margin: 0;
+}
+.asset-manager h3 {
+  font-size: 16px;
+}
+.asset-manager p,
+.asset-manager small {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.asset-manager button,
+.asset-manager input,
+.asset-manager select {
+  font: inherit;
+  border: 1px solid #c6bfad;
+  border-radius: 5px;
+  padding: 7px;
+  background: #fffdf7;
+  color: #41493b;
+}
+.asset-manager button {
+  cursor: pointer;
+  margin: 5px;
+}
+.asset-manager button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.asset-manager label {
+  display: block;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.asset-manager label > input:not([type="checkbox"]),
+.asset-manager select {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  margin-top: 5px;
+}
+.asset-drop {
+  border: 2px dashed #a0ac8c;
+  padding: 12px;
+  border-radius: 8px;
+}
+.asset-columns {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.4fr);
+  gap: 24px;
+}
+.asset-entry {
+  padding: 10px;
+  border-bottom: 1px solid #ded7c9;
+}
+.asset-entry strong,
+.asset-entry small {
+  display: block;
+}
+.asset-manager fieldset {
+  border: 1px solid #d6cebc;
+  margin-top: 12px;
+}
+.asset-preview {
+  height: 260px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.asset-status {
+  background: #e7ecdc;
+  padding: 10px;
+}
+.asset-manager [role="alert"],
+.import-warning {
+  color: #a33b27;
+}
+.import-warning {
+  position: absolute;
+  top: 160px;
+  right: 30px;
+  width: 320px;
+  z-index: 30;
+  background: #fff6e9;
+  padding: 12px;
+  font-size: 12px;
+}
+.asset-fixtures {
+  display: flex;
+  gap: 15px;
+  padding: 8px;
+}
+.placement-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 650px) {
+  .asset-manager {
+    inset: 2vh 2vw;
+    padding: 12px;
+  }
+  .asset-columns {
+    grid-template-columns: 1fr;
+  }
+  .asset-preview {
+    height: 220px;
+  }
+  .home-actions {
+    flex-wrap: wrap;
+    max-width: 80%;
+    top: 85px;
+  }
+  .home-actions button {
+    font-size: 10px;
+    padding: 6px;
+  }
+  .home-actions select {
+    font-size: 10px;
+    padding: 6px;
+  }
+}

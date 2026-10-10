@@ -14,12 +14,16 @@ export interface CharacterPackage {
   clips: () => AnimationClip[];
 }
 export interface WorldSurfaceProps {
+  fixedShell: import("./shell").FixedShellSource;
+  layout?: import("../worlds/xiyue").Layout;
+  onWardrobe?: () => void;
   night: boolean;
   autumn: boolean;
   onSelect: (id: ObjectId) => void;
   showLabels: boolean;
 }
 export interface WorldPackage {
+  fixedShell: import("./shell").FixedShellSource;
   definition: WorldDefinition;
   Surface: ComponentType<WorldSurfaceProps>;
 }

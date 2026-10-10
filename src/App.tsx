@@ -3,6 +3,7 @@ import {
   Suspense,
   lazy,
   useCallback,
+  useMemo,
   useEffect,
   useRef,
   useState,
@@ -33,8 +34,27 @@ import { acceptEvent, ambientAt, selectActivity } from "./runtime/semantic";
 import type { Activity, PresenceEvent } from "./runtime/semantic";
 import { characters } from "./assets/catalog";
 import { About } from "./ui/About";
-import { observations, studio } from "./worlds/studio";
+import { studio } from "./worlds/studio";
 import type { ObjectId } from "./worlds/studio";
+import { paperwood } from "./assets/demo";
+import { createXiyuePackage } from "./assets/xiyue";
+import {
+  defaultLayout,
+  decodeLayout,
+  encodeLayout,
+  layoutKey,
+  interactionAnchors,
+  type Layout,
+} from "./worlds/xiyue";
+import { validateLayout, safeLayout } from "./worlds/layout";
+import { outfits, type Outfit } from "./runtime/wardrobe";
+import { mockProjectionProvider } from "./runtime/projections";
+import { Wardrobe, LayoutControls } from "./ui/HomeControls";
+import { useRegistry } from "./imported/useRegistry";
+import { AssetManager } from "./imported/AssetManager";
+import { ImportedLayer } from "./imported/ImportedLayer";
+import { composePlacements } from "./imported/placement";
+import type { AssetDescriptor, Placement } from "./imported/descriptor";
 const HabitatScene = lazy(() => import("./scene/HabitatScene"));
 
 class SceneBoundary extends Component<
@@ -93,8 +113,16 @@ const events: { activity: Activity; label: string; speech: string }[] = [
   },
 ];
 
-function ObjectCard({ id, onClose }: { id: ObjectId; onClose: () => void }) {
-  const data = observations[id];
+function ObjectCard({
+  id,
+  worldId,
+  onClose,
+}: {
+  id: ObjectId;
+  worldId: string;
+  onClose: () => void;
+}) {
+  const data = mockProjectionProvider.read(worldId, id);
   const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const before = document.activeElement as HTMLElement;
@@ -152,6 +180,128 @@ function ObjectCard({ id, onClose }: { id: ObjectId; onClose: () => void }) {
 }
 
 export default function App() {
+  const [home, setHome] = useState(true);
+  const registry = useRegistry();
+  const [managerOpen, setManagerOpen] = useState(false);
+  const [importedSelection, setImportedSelection] = useState<string | null>(
+    null,
+  );
+  const [layout, setLayout] = useState<Layout>(() => {
+    try {
+      return safeLayout(decodeLayout(localStorage.getItem(layoutKey)));
+    } catch {
+      return structuredClone(defaultLayout);
+    }
+  });
+  const [wardrobe, setWardrobe] = useState(false),
+    [layoutOpen, setLayoutOpen] = useState(false);
+  const [destination, setDestination] = useState<string | null>(null);
+  const [outfit, setOutfit] = useState<Outfit>(() => {
+    try {
+      return (
+        outfits.find(
+          (o) => o.id === localStorage.getItem("habitat:xiyue:outfit"),
+        ) ?? outfits[0]
+      );
+    } catch {
+      return outfits[0];
+    }
+  });
+  const basePackage = useMemo(() => createXiyuePackage(layout), [layout]);
+  const composed = useMemo(
+    () =>
+      composePlacements(
+        basePackage.definition,
+        registry.assets.filter((a) => a.scene).map((a) => a.descriptor),
+        registry.placements,
+        Object.values(interactionAnchors(layout)),
+      ),
+    [basePackage, registry.assets, registry.placements, layout],
+  );
+  const homePackage = useMemo(
+    () => ({ ...basePackage, definition: composed.world }),
+    [basePackage, composed.world],
+  );
+  const definition = homePackage.definition;
+  const focusTarget = useMemo(() => {
+    const p = registry.placements.find((p) => p.id === importedSelection);
+    return p ? ([p.x, 0.8, p.z] as [number, number, number]) : undefined;
+  }, [registry.placements, importedSelection]);
+  async function applyPlacements(items: Placement[]) {
+    for (const p of items) {
+      const old = registry.placements.find((o) => o.id === p.id),
+        a = registry.assets.find((a) => a.descriptor.id === p.assetId);
+      if (
+        old &&
+        a &&
+        !a.descriptor.movable &&
+        JSON.stringify(p) !== JSON.stringify(old)
+      )
+        throw new Error("此资产登记为固定摆放，可移除后重新放入");
+    }
+    const result = composePlacements(
+      basePackage.definition,
+      registry.assets.filter((a) => a.scene).map((a) => a.descriptor),
+      items,
+      Object.values(interactionAnchors(layout)),
+    );
+    if (result.error) throw new Error(result.error);
+    await registry.commit(items);
+    setImportedSelection(null);
+    setDestination(null);
+  }
+  function importedInteraction(p: Placement, d: AssetDescriptor) {
+    if (d.interaction.kind === "wardrobe") {
+      setSelected(null);
+      setImportedSelection(p.id);
+      setDestination(null);
+      setWardrobe(true);
+    } else if (d.interaction.kind === "projection") {
+      setImportedSelection(null);
+      setWardrobe(false);
+      setSelected(d.interaction.key);
+    }
+  }
+  const targetAnchor = useMemo(
+    () =>
+      home
+        ? importedSelection
+          ? composed.approaches[importedSelection]
+          : destination
+            ? interactionAnchors(layout)[destination]
+            : undefined
+        : undefined,
+    [home, destination, layout, importedSelection, composed.approaches],
+  );
+  const world = home ? definition : studio;
+  function applyLayout(value: Layout) {
+    const error = validateLayout(value);
+    if (error) return error;
+    const combined = composePlacements(
+      createXiyuePackage(value).definition,
+      registry.assets.filter((a) => a.scene).map((a) => a.descriptor),
+      registry.placements,
+      Object.values(interactionAnchors(value)),
+    );
+    if (combined.error) return combined.error;
+    try {
+      localStorage.setItem(layoutKey, encodeLayout(value));
+    } catch {
+      return "浏览器未允许保存，布局未应用";
+    }
+    setLayout(structuredClone(value));
+    setDestination(null);
+    return null;
+  }
+  function wear(value: Outfit) {
+    setOutfit(value);
+    try {
+      localStorage.setItem("habitat:xiyue:outfit", value.id);
+    } catch {
+      /* outfit remains usable in this session */
+    }
+  }
+
   const [night, setNight] = useState(false),
     [autumn, setAutumn] = useState(false),
     [assetIndex, setAssetIndex] = useState(0);
@@ -175,7 +325,16 @@ export default function App() {
   const [autoEvents, setAutoEvents] = useState(true);
   const firstEvent = useRef(false);
   const seq = useRef(0);
-  const asset = characters[assetIndex];
+  const asset = home
+    ? {
+        ...characters[assetIndex],
+        name: "溪月",
+        coat: outfit.coat,
+        pants: outfit.pants,
+        hat: outfit.hat,
+        outfitStyle: outfit.style,
+      }
+    : characters[assetIndex];
   const simulationPaused = paused || hidden;
   const motion = useCallback((walk: boolean, stuck: boolean) => {
     setMoving(walk);
@@ -216,6 +375,9 @@ export default function App() {
     const fn = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setSelected(null);
+        setWardrobe(false);
+        setImportedSelection(null);
+        setManagerOpen(false);
         setSettings(false);
         setDemo(false);
         setAbout(false);
@@ -278,7 +440,7 @@ export default function App() {
           <br />
           有个栖身之处<span>。</span>
         </h1>
-        <p>{studio.subtitle}</p>
+        <p>{world.subtitle}</p>
         <button
           className={`world-selector ${settings ? "active" : ""}`}
           onClick={() => {
@@ -288,9 +450,9 @@ export default function App() {
           aria-expanded={settings}
         >
           <Home size={15} />
-          {studio.name}
+          {world.name}
           <span className="selector-divider" />
-          01
+          {home ? "02" : "01"}
           <ChevronDown size={14} />
         </button>
       </section>
@@ -308,11 +470,44 @@ export default function App() {
             }
           >
             <HabitatScene
+              worldPackage={home ? homePackage : paperwood}
+              focusTarget={focusTarget}
+              importedLayer={
+                home && !composed.error ? (
+                  <ImportedLayer
+                    assets={registry.assets}
+                    placements={registry.placements}
+                    onInteract={importedInteraction}
+                    labels={showLabels}
+                  />
+                ) : undefined
+              }
+              layout={home ? layout : undefined}
+              onWardrobe={() => {
+                setImportedSelection(null);
+                setSelected(null);
+                setWardrobe(true);
+                setDestination("wardrobe_focus");
+              }}
+              focus={home && wardrobe}
+              targetAnchor={targetAnchor}
               night={night}
               autumn={autumn}
               paused={simulationPaused}
               reduced={reduced}
-              activity={projection.activity}
+              activity={
+                home && importedSelection
+                  ? "idle"
+                  : home && destination
+                    ? destination === "sofa_rest"
+                      ? "resting"
+                      : destination === "desk_work"
+                        ? "working"
+                        : destination === "bookshelf_read"
+                          ? "reading"
+                          : "idle"
+                    : projection.activity
+              }
               asset={asset}
               speech={speech}
               showLabels={showLabels}
@@ -336,7 +531,7 @@ export default function App() {
         </div>
       </div>
       <div className="room-caption">
-        <span>THE PAPERWOOD STUDIO</span>
+        <span>{home ? "XIYUE HOME V1" : "THE PAPERWOOD STUDIO"}</span>
         <div className="caption-line" />
         <span>01 / 一个正在发生的日常</span>
       </div>
@@ -361,7 +556,9 @@ export default function App() {
                 ? "暂时无法到达"
                 : moving
                   ? "正慢慢走过去"
-                  : activityNames[projection.activity]}
+                  : home && targetAnchor
+                    ? targetAnchor.label
+                    : activityNames[projection.activity]}
           </div>
         </div>
         <div
@@ -468,8 +665,72 @@ export default function App() {
         </span>
         <span className="footer-version">PRESENCE, NOT A CHAT.</span>
       </footer>
+      {home && (
+        <div className="home-actions">
+          <button
+            onClick={() => {
+              setManagerOpen(true);
+              setLayoutOpen(false);
+              setWardrobe(false);
+              setImportedSelection(null);
+              setSelected(null);
+            }}
+          >
+            资产库 / 导入 GLB
+          </button>
+          <button onClick={() => setLayoutOpen(!layoutOpen)}>家具布局</button>
+          <select
+            aria-label="带溪月去"
+            value={destination ?? ""}
+            onChange={(e) => setDestination(e.target.value || null)}
+          >
+            <option value="">自然日常</option>
+            {Object.entries(interactionAnchors(layout)).map(([id, a]) => (
+              <option key={id} value={id}>
+                {a.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      {home && composed.error && (
+        <p className="import-warning" role="alert">
+          导入布局暂未显示：{composed.error}。请打开资产库修正。
+        </p>
+      )}
+      {home && managerOpen && (
+        <AssetManager
+          registry={registry}
+          onClose={() => setManagerOpen(false)}
+          onApply={applyPlacements}
+          placementError={composed.error}
+        />
+      )}
+      {home && wardrobe && (
+        <Wardrobe
+          current={outfit}
+          night={night}
+          onChoose={wear}
+          onClose={() => {
+            setWardrobe(false);
+            setImportedSelection(null);
+            setDestination(null);
+          }}
+        />
+      )}
+      {home && layoutOpen && !wardrobe && (
+        <LayoutControls
+          layout={layout}
+          onApply={applyLayout}
+          onClose={() => setLayoutOpen(false)}
+        />
+      )}
       {selected && (
-        <ObjectCard id={selected} onClose={() => setSelected(null)} />
+        <ObjectCard
+          worldId={world.id}
+          id={selected}
+          onClose={() => setSelected(null)}
+        />
       )}
       {settings && (
         <section className="settings-popover" aria-label="小屋设置">
@@ -484,6 +745,30 @@ export default function App() {
             </button>
           </div>
           <h2>小屋的样子</h2>
+          <div className="choice-row">
+            <button
+              onClick={() => {
+                setHome(true);
+                setSettings(false);
+                setSelected(null);
+                setDestination(null);
+              }}
+            >
+              溪月之家 V1
+            </button>
+            <button
+              onClick={() => {
+                setHome(false);
+                setSettings(false);
+                setWardrobe(false);
+                setLayoutOpen(false);
+                setDestination(null);
+                setSelected(null);
+              }}
+            >
+              Paperwood Studio
+            </button>
+          </div>
           <label>室内配色</label>
           <div className="choice-row">
             <button
