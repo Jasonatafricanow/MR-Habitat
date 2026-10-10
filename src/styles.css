@@ -10,7 +10,6 @@
   background: #eeece5;
   font-synthesis: none;
   font-weight: 400;
-  font-synthesis: none;
 }
 * {
   box-sizing: border-box;
@@ -1024,16 +1023,27 @@ button:disabled {
   display: flex;
   gap: 8px;
   z-index: 25;
+  font-size: 12px;
+  letter-spacing: 0.5px;
 }
 .home-actions button,
 .home-actions select,
 .home-panel button {
+  font: inherit;
   background: #f7f3e9;
   border: 1px solid #d4c9b5;
   border-radius: 8px;
-  padding: 9px;
+  padding: 8px 12px;
   color: #4b5143;
   cursor: pointer;
+}
+.home-actions button:hover,
+.home-actions select:hover {
+  background: #efe9da;
+}
+/* The Xiyue toolbar owns the top-right row; the time note moves beneath it. */
+.habitat:has(.home-actions) .time-note {
+  top: 168px;
 }
 .home-marker {
   border: 1px solid #d2c8b4;
@@ -1044,6 +1054,33 @@ button:disabled {
   color: #505747;
   cursor: pointer;
   font-size: 11px;
+}
+.room-tag {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 5px 11px 6px;
+  border-radius: 3px;
+  background: #34362fe6;
+  color: #f3eee2;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px #2a241a33;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  user-select: none;
+}
+.room-tag b {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+.room-tag small {
+  font-size: 9.5px;
+  font-style: italic;
+  color: #d7d0bf;
+  width: 128px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
 }
 .home-panel {
   position: absolute;
@@ -1132,6 +1169,15 @@ button:disabled {
   .home-marker {
     font-size: 10px;
     padding: 4px;
+  }
+  .room-tag {
+    padding: 2px 6px 3px;
+  }
+  .room-tag b {
+    font-size: 10px;
+  }
+  .room-tag small {
+    display: none;
   }
 }
 .asset-manager {

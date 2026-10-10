@@ -3,7 +3,7 @@ import { buildXiyueArt } from "./XiyueSurface";
 import { props } from "../worlds/xiyue";
 
 it("caps repeated motifs in the actually generated art, with one open book at the nook", () => {
-  const art = buildXiyueArt(false);
+  const art = buildXiyueArt();
   try {
     const groups = [
       art.shell,

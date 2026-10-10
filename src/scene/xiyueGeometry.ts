@@ -53,8 +53,15 @@ const colors = {
   glow: "#ffe4ad",
   rug: "#bbb294",
   rust: "#96614b",
+  // Architecture tones from the Xiyue moodboard: honey-oak boards, charcoal wall caps.
+  floor: "#c49a6a",
+  floorAlt: "#b98d5f",
+  cap: "#33332f",
+  plinth: "#d8cdb6",
+  terracotta: "#b8673f",
 };
 export type Mat = keyof typeof colors;
+export const skyColors = { day: colors.sky, night: colors.mountainDark };
 
 /** Small deterministic local textures: no network, full-screen effects or texture assets. */
 function texture(kind: "wood" | "fabric") {
@@ -87,9 +94,14 @@ export function createArtMaterials() {
       key,
       new MeshStandardMaterial({
         color,
-        roughness: key === "metal" || key === "mirror" ? 0.35 : 0.88,
+        roughness:
+          key === "metal" || key === "mirror"
+            ? 0.35
+            : key === "floor" || key === "floorAlt"
+              ? 0.62
+              : 0.88,
         metalness: key === "brass" ? 0.5 : key === "mirror" ? 0.4 : 0,
-        map: ["oak", "dark", "edge"].includes(key)
+        map: ["oak", "dark", "edge", "floor", "floorAlt"].includes(key)
           ? wood
           : ["linen", "cream", "moss", "sage", "rug"].includes(key)
             ? fabric

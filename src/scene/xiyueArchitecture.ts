@@ -5,12 +5,11 @@ function windowView(
   b: ArtBuilder,
   w: number,
   h: number,
-  night: boolean,
   curtains = true,
   planted = false,
 ) {
   b.box(0, 0, 0, w + 0.15, h + 0.15, 0.09, "dark");
-  b.box(0, 0, 0.055, w, h, 0.018, night ? "mountainDark" : "sky");
+  b.box(0, 0, 0.055, w, h, 0.018, "sky");
   b.ball(w * 0.27, h * 0.29, 0.074, [0.11, 0.11, 0.006], "glow");
   for (let i = 0; i < 5; i++)
     b.ball(
@@ -46,31 +45,53 @@ function windowView(
   if (planted) plant(b, -w * 0.28, -h / 2 + 0.003, 0.23, 0.42, "herb");
 }
 
-export function architecture(b: ArtBuilder, night: boolean) {
+/** Night only recolours the shared `sky` material, so geometry is built once per mount. */
+export function architecture(b: ArtBuilder) {
   for (const r of floorPieces) {
-    b.box(r.x, -0.135, r.z, r.w, 0.27, r.d, "dark");
+    b.box(r.x, -0.135, r.z, r.w, 0.27, r.d, "plinth");
     const tiled = ["bathroom", "kitchen", "balcony"].includes(r.id);
-    const rows = Math.ceil(r.d / (tiled ? 0.42 : 0.24)),
-      cols = Math.ceil(r.w / (tiled ? 0.42 : 0.9));
-    const tw = r.w / cols,
+    if (tiled) {
+      const rows = Math.ceil(r.d / 0.42),
+        cols = Math.ceil(r.w / 0.42);
+      const tw = r.w / cols,
+        td = r.d / rows;
+      for (let j = 0; j < rows; j++)
+        for (let i = 0; i < cols; i++)
+          b.box(
+            r.x - r.w / 2 + (i + 0.5) * tw,
+            0.002,
+            r.z - r.d / 2 + (j + 0.5) * td,
+            tw - 0.009,
+            0.024,
+            td - 0.008,
+            (i + j) % 3 ? "stone" : "grout",
+          );
+      continue;
+    }
+    // Long honey-oak boards with staggered butt joints, as in the moodboard floors.
+    const rows = Math.ceil(r.d / 0.2),
       td = r.d / rows;
-    for (let j = 0; j < rows; j++)
-      for (let i = 0; i < cols; i++)
+    for (let j = 0; j < rows; j++) {
+      const z = r.z - r.d / 2 + (j + 0.5) * td;
+      const joints = [r.x - r.w / 2];
+      for (
+        let x = joints[0] + 0.55 + ((j * 0.37) % 0.6);
+        x < r.x + r.w / 2 - 0.3;
+        x += 1.1 + ((j * 0.23) % 0.5)
+      )
+        joints.push(x);
+      joints.push(r.x + r.w / 2);
+      for (let i = 0; i < joints.length - 1; i++)
         b.box(
-          r.x - r.w / 2 + (i + 0.5) * tw,
+          (joints[i] + joints[i + 1]) / 2,
           0.002,
-          r.z - r.d / 2 + (j + 0.5) * td,
-          tw - 0.009,
+          z,
+          joints[i + 1] - joints[i] - 0.006,
           0.024,
-          td - 0.008,
-          tiled
-            ? (i + j) % 3
-              ? "stone"
-              : "grout"
-            : (i * 3 + j) % 5 === 0
-              ? "edge"
-              : "oak",
+          td - 0.006,
+          (i + j * 2) % 3 === 0 ? "floorAlt" : "floor",
         );
+    }
   }
   for (const v of walls) {
     const north = v[1] === -3.6 && v[2] > 1,
@@ -86,24 +107,15 @@ export function architecture(b: ArtBuilder, night: boolean) {
       (v[0] === 0 && v[1] === 2.7);
     const h = v[1] === 0.4 && v[2] > 1 ? 1.95 : retained ? 2.65 : 0.72;
     b.box(v[0], h / 2, v[1], v[2], h, v[3], bathBack ? "tile" : "plaster");
-    b.box(
-      v[0],
-      h + 0.018,
-      v[1],
-      v[2] + 0.025,
-      0.035,
-      v[3] + 0.025,
-      "dark",
-      0.01,
-    );
+    b.box(v[0], h + 0.03, v[1], v[2] + 0.05, 0.06, v[3] + 0.05, "cap", 0.012);
     b.box(v[0], 0.09, v[1], v[2] + 0.028, 0.14, v[3] + 0.028, "cream");
   }
-  b.at([-3.3, 1.72, -3.51], [0, 0, 0], () => windowView(b, 2.38, 1.43, night));
+  b.at([-3.3, 1.72, -3.51], [0, 0, 0], () => windowView(b, 2.38, 1.43));
   b.at([3.6, 1.72, -3.51], [0, 0, 0], () =>
-    windowView(b, 1.55, 1.43, night, true, true),
+    windowView(b, 1.55, 1.43, true, true),
   );
   b.at([2.492, 1.8, 3.75], [0, -Math.PI / 2, 0], () =>
-    windowView(b, 0.62, 0.7, night, false, true),
+    windowView(b, 0.62, 0.7, false, true),
   );
   b.box(0, 0.94, -4.37, 3.2, 0.065, 0.07, "dark", 0.014);
   for (let i = 0; i <= 16; i++)
@@ -134,7 +146,7 @@ export function architecture(b: ArtBuilder, night: boolean) {
   // A single distant landscape belongs to the balcony vista, not another furnished area.
   b.note("balconyVistas");
   b.at([0, 0, -4.49], [0, 0, 0], () => {
-    b.box(0, 1.17, 0, 3.16, 1.4, 0.012, night ? "mountainDark" : "sky");
+    b.box(0, 1.17, 0, 3.16, 1.4, 0.012, "sky");
     b.silhouette(
       [
         [-1.58, 0.5],

@@ -2,7 +2,7 @@ import { memo, Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, ContactShadows } from "@react-three/drei";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { Color, PCFShadowMap } from "three";
+import { PCFShadowMap } from "three";
 import { Character } from "./Character";
 import type { CharacterAsset } from "../assets/catalog";
 import { paperwood, woodenCompanion } from "../assets/demo";
@@ -123,23 +123,27 @@ function HabitatScene(props: SceneProps) {
       dpr={[1, 1.5]}
       camera={{ position: [10, 9, 12], zoom: 60, near: 0.1, far: 80 }}
       gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
-      onCreated={({ gl, scene }) => {
+      onCreated={({ gl }) => {
         gl.shadowMap.type = PCFShadowMap;
-        scene.background = new Color(props.night ? "#d2d7d1" : "#eeece5");
       }}
     >
       <color attach="background" args={[props.night ? "#c6cec8" : "#eeece5"]} />
       <ambientLight
-        intensity={props.night ? 0.75 : isHome ? 0.7 : 1.1}
+        intensity={props.night ? 0.75 : isHome ? 0.42 : 1.1}
         color={props.night ? "#abbcd2" : "#fff5df"}
       />
       <hemisphereLight
-        args={["#fff4d6", "#9b9e85", props.night ? 0.8 : isHome ? 0.85 : 1.15]}
+        args={
+          isHome && !props.night
+            ? ["#ffe6bd", "#7e6f57", 0.75]
+            : ["#fff4d6", "#9b9e85", props.night ? 0.8 : 1.15]
+        }
       />
+      {/* Xiyue: low golden sun through the north windows, as in the moodboard cutaway. */}
       <directionalLight
-        position={isHome ? [-4, 8, -5] : [-3, 8, 4]}
-        intensity={props.night ? 1 : 2.5}
-        color={props.night ? "#f4d8a0" : "#fff0d0"}
+        position={isHome ? [-5.5, 6.5, -6.5] : [-3, 8, 4]}
+        intensity={props.night ? 1 : isHome ? 3.6 : 2.5}
+        color={props.night ? "#f4d8a0" : isHome ? "#ffd399" : "#fff0d0"}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-8}

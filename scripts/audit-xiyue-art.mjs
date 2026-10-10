@@ -4,7 +4,7 @@ try {
   const { buildXiyueArt } = await server.ssrLoadModule(
     "/src/scene/XiyueSurface.tsx",
   );
-  const art = buildXiyueArt(false);
+  const art = buildXiyueArt();
   try {
     const groups = [
       art.shell,

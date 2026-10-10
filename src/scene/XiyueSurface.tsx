@@ -5,12 +5,19 @@ import { FixedShell } from "./FixedShell";
 import {
   fixtures,
   props,
+  rooms,
   defaultLayout,
   homeScale,
   type Layout,
 } from "../worlds/xiyue";
 import type { WorldSurfaceProps } from "../assets/packages";
-import { ArtBuilder, book, cup, createArtMaterials } from "./xiyueGeometry";
+import {
+  ArtBuilder,
+  book,
+  cup,
+  createArtMaterials,
+  skyColors,
+} from "./xiyueGeometry";
 import { architecture, decorations } from "./xiyueArchitecture";
 import { furnishing, fixture, seat } from "./xiyueFurnishings";
 import { authoredInspectionSites } from "../worlds/xiyueSites";
@@ -20,7 +27,22 @@ import {
 } from "../runtime/xiyueBindings";
 import type { ObjectId } from "../worlds/studio";
 
-export function buildXiyueArt(night: boolean) {
+/** Room signage from the Xiyue cutaway board; nudges keep tags clear of the object markers. */
+const roomTags: Record<
+  string,
+  { title: string; note?: string; dx?: number; dz?: number }
+> = {
+  balcony: { title: "Balcony", note: "Wind, plants, and a wider tomorrow." },
+  nook: { title: "Daydreaming", dz: 0.35 },
+  study: { title: "Work / Reading", dx: -0.55, dz: 0.75 },
+  living: { title: "Staying", dx: -0.3, dz: 0.55 },
+  bedroom: { title: "Rest", dx: 0.3, dz: 0.2 },
+  bathroom: { title: "Bathing", dx: 0.25, dz: 0.45 },
+  entry: { title: "Returning", dx: 0.2, dz: 0.15 },
+  kitchen: { title: "Daily Warmth", dx: -0.2, dz: -0.2 },
+};
+
+export function buildXiyueArt() {
   const palette = createArtMaterials();
   const build = (name: string, draw: (b: ArtBuilder) => void) => {
     const b = new ArtBuilder();
@@ -28,7 +50,7 @@ export function buildXiyueArt(night: boolean) {
     return b.finish(palette.materials, name);
   };
   const shell = build("FixedShell", (b) => {
-    architecture(b, night);
+    architecture(b);
     for (const p of fixtures)
       b.at([p.x, 0, p.z], [0, p.rotation ?? 0, 0], () =>
         fixture(b, p.id, p.w, p.d, p.h),
@@ -70,6 +92,10 @@ export function buildXiyueArt(night: boolean) {
     sofa,
     coffee,
     objects,
+    /** Window and balcony backdrops dim at night without rebuilding geometry. */
+    setNight: (night: boolean) => {
+      palette.materials.sky.color.set(night ? skyColors.night : skyColors.day);
+    },
     dispose: () => {
       all.forEach((group) =>
         group.traverse((o) => {
@@ -94,7 +120,10 @@ export function XiyueSurface({
   onWardrobe?: () => void;
   projectionBindings?: Readonly<Record<string, ObjectId>>;
 }) {
-  const art = useMemo(() => buildXiyueArt(night), [night]);
+  const art = useMemo(() => buildXiyueArt(), []);
+  useEffect(() => {
+    art.setNight(night);
+  }, [art, night]);
   const views = resolveProjectionBindings(
     authoredInspectionSites(props),
     projectionBindings,
@@ -154,6 +183,25 @@ export function XiyueSurface({
         >
           <primitive object={art.coffee} dispose={null} />
         </group>
+        {showLabels &&
+          rooms.map((r) => {
+            const tag = roomTags[r.id];
+            if (!tag) return null;
+            return (
+              <Html
+                key={r.id}
+                position={[r.x + (tag.dx ?? 0), 0.9, r.z + (tag.dz ?? 0)]}
+                center
+                zIndexRange={[9, 0]}
+                style={{ pointerEvents: "none" }}
+              >
+                <div className="room-tag" lang="en">
+                  <b>{tag.title}</b>
+                  {tag.note && <small>{tag.note}</small>}
+                </div>
+              </Html>
+            );
+          })}
         {showLabels && (
           <>
             {views.map((view) => (
