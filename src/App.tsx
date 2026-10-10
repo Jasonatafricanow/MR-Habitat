@@ -407,7 +407,7 @@ export default function App() {
   }
   return (
     <main
-      className={`habitat ${night ? "night" : ""} ${selected ? "has-card" : ""}`}
+      className={`habitat ${home ? "is-home" : ""} ${night ? "night" : ""} ${selected ? "has-card" : ""}`}
     >
       <header className="topbar">
         <a className="brand" href="./" aria-label="MR Habitat 首页">

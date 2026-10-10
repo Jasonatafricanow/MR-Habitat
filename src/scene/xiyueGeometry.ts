@@ -59,9 +59,22 @@ const colors = {
   cap: "#33332f",
   plinth: "#d8cdb6",
   terracotta: "#b8673f",
+  // Exterior: a lakeside mountain lot, kept to a short, fog-faded radius.
+  grass: "#7e9f55",
+  grassDark: "#6c8c4b",
+  meadow: "#a3a86c",
+  foliage: "#557a3e",
+  foliageLight: "#7f9450",
+  foliageDark: "#3d5a34",
+  bark: "#5c4632",
+  path: "#cbbfa6",
+  sand: "#d6c7a2",
+  lake: "#7fa2a3",
+  hill: "#7d906a",
+  ridge: "#8a9d93",
+  ridgeFar: "#a9b8b6",
 };
 export type Mat = keyof typeof colors;
-export const skyColors = { day: colors.sky, night: colors.mountainDark };
 
 /** Small deterministic local textures: no network, full-screen effects or texture assets. */
 function texture(kind: "wood" | "fabric") {
@@ -110,8 +123,14 @@ export function createArtMaterials() {
           ? { emissive: new Color("#ffcf80"), emissiveIntensity: 0.65 }
           : {}),
         ...(key === "glass"
-          ? { transparent: true, opacity: 0.18, depthWrite: false }
+          ? {
+              transparent: true,
+              opacity: 0.16,
+              depthWrite: false,
+              roughness: 0.05,
+            }
           : {}),
+        ...(key === "lake" ? { roughness: 0.18, metalness: 0.1 } : {}),
       }),
     ]),
   ) as Record<Mat, MeshStandardMaterial>;

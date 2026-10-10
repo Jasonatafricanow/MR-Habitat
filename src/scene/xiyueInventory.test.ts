@@ -10,6 +10,8 @@ it("caps repeated motifs in the actually generated art, with one open book at th
       art.decor,
       art.sofa,
       art.coffee,
+      art.outside,
+      ...art.walls.map((w) => w.full),
       ...art.objects.map((p) => p.model),
     ];
     const totals: Record<string, number> = {};
